@@ -19,33 +19,48 @@
     // range: defines area available to render graph
     // domain: max and mix values of data
     function buildLineGraph(data) {
-        var salesData = data,
-            minMaxValues = getMinAndMax(data),
-            vis = d3.select('#visualisation'),
-            xScale = d3.scale.linear().range([
-                config.MARGINS.left,
-                config.WIDTH - config.MARGINS.right
-            ]).domain([
-                salesData[0].year,
-                salesData[salesData.length-1].year
-            ]);
-            yScale = d3.scale.linear().range([
-                config.HEIGHT - config.MARGINS.top,
-                config.MARGINS.bottom
-            ]).domain([
-                minMaxValues.min,
-                minMaxValues.max
-            ]);
+        var vis = d3.select('#visualisation'),
+            xAxis = d3.svg.axis().scale(buildXScale(data)),
+            yAxis = d3.svg.axis().scale(buildYScale(data));
+
+        vis.append("svg:g")
+            .attr("transform", "translate(0," + (config.HEIGHT - (2 * config.MARGINS.bottom)) + ")")
+            .call(xAxis);
+
     }
 
-    function getMinAndMax(data) {
+    function buildXScale(data) {
+        return d3.scale.linear().range([
+            config.MARGINS.left,
+            config.WIDTH - config.MARGINS.right
+        ]).domain([
+            data[0].year,
+            data[data.length-1].year
+        ]);
+    }
+
+    function buildYScale(data) {
+        return d3.scale.linear().range([
+            config.HEIGHT - config.MARGINS.top,
+            config.MARGINS.bottom
+        ]).domain([
+            getMinValue(data),
+            getMaxValue(data)
+        ]);
+    }
+
+    function getMaxValue(data) {
         var salesList = data.map(function(x) {
             return x.sale;
         });
-        return {
-            'min': _.min(salesList),
-            'max': _.max(salesList)
-        };
+        return _.max(salesList);
+    }
+
+    function getMinValue(data) {
+        var salesList = data.map(function(x) {
+            return x.sale;
+        });
+        return _.min(salesList);
     }
 
     getData();
